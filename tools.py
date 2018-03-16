@@ -9,8 +9,9 @@ import imutils
 def color(c):
     return tuple(int(x*255) for x in to_rgb(c))
 
-def df_contours(cnts):
-    df = pd.DataFrame(columns=['cx','cy', 'left', 'right', 'bottom', 'top', 'w', 'h'])
+def df_contours(cnts, df=None):
+    if df is None:
+        df = pd.DataFrame(columns=['cx','cy', 'left', 'right', 'bottom', 'top', 'w', 'h'])
     for i, c in enumerate(cnts):
         M = cv2.moments(c)
         if np.isclose(M["m00"], 0.0):
@@ -22,7 +23,9 @@ def df_contours(cnts):
                                'w': w, 'h': h, 'bottom': y+h, 'right': x+w})
     return df
 
-def df_image(image, x=0, y=0, w=None, h=None):
+def df_image(image, df=None, x=0, y=0, w=None, h=None):
+    if df is None:
+        df = pd.DataFrame(columns=['cx','cy', 'left', 'right', 'bottom', 'top', 'w', 'h'])
     dim = image.shape
     if not h:
         h = dim[0]
@@ -30,7 +33,6 @@ def df_image(image, x=0, y=0, w=None, h=None):
         w = dim[1]
     prop = {'cx': x+w/2., 'cy': y+h/2., 'left': x, 'top': y, 
              'w': w, 'h': h, 'bottom': y+h, 'right': x+w}
-    df = pd.DataFrame(columns=['cx','cy', 'left', 'right', 'bottom', 'top', 'w', 'h'])
     df = df.append(pd.Series(prop), ignore_index=True)
     return df
 
