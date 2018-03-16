@@ -22,9 +22,17 @@ def df_contours(cnts):
                                'w': w, 'h': h, 'bottom': y+h, 'right': x+w})
     return df
 
-def df_image(image):
+def df_image(image, x=0, y=0, w=None, h=None):
+    dim = image.shape
+    if not h:
+        h = dim[0]
+    if not w:
+        w = dim[1]
+    prop = {'cx': x+w/2., 'cy': y+h/2., 'left': x, 'top': y, 
+             'w': w, 'h': h, 'bottom': y+h, 'right': x+w}
     df = pd.DataFrame(columns=['cx','cy', 'left', 'right', 'bottom', 'top', 'w', 'h'])
-    
+    df = df.append(pd.Series(prop), ignore_index=True)
+    return df
 
 def center(df, i=0, offset=0):
     return tuple(df.loc[i, ['cx','cy']] + offset)
@@ -37,12 +45,17 @@ def rb(df, i=0, offset=0):
     '''Right Bottom'''
     return tuple(df.loc[i, ['right','bottom']] + offset)
 
+def plot_image(image, ax=None):
+    if not ax:
+        fig, ax = plt.subplots()
+    if len(image.shape) == 3:
+        ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    elif len(image.shape) == 2:
+        ax.imshow(image, cmap='gray')
+
 def plot_images(images):
-    fig, axes = plt.subplots(nrows=3, ncols=1, sharex=True, sharey=True)
+    fig, axes = plt.subplots(nrows=len(images), ncols=1, sharex=True, sharey=True)
     for ax, im in zip(axes.flat, images):
-        if len(im.shape) == 3:
-            ax.imshow(cv2.cvtColor(im, cv2.COLOR_BGR2RGB))
-        elif len(im.shape) == 2:
-            ax.imshow(im, cmap='gray')
+        plot_image(im, ax=ax)
     plt.show()
 
